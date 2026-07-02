@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>XFactor — @generalizingai</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg: #000000;
+  --card: #0a0a0a;
+  --card-hover: #141414;
+  --border: #1a1a1a;
+  --border-light: #2a2a2a;
+  --text: #f5f5f5;
+  --text-muted: #9ca3af;
+  --text-dim: #6b7280;
+  --accent: #ffffff;
+  --accent-dim: #d1d5db;
+  --accent-bg: rgba(255,255,255,0.04);
+  --green: #22c55e;
+  --green-bg: rgba(34,197,94,0.06);
+  --yellow: #eab308;
+  --red: #ef4444;
+  --radius: 10px;
+  --radius-sm: 6px;
+}
+body{
+  font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  background:var(--bg);color:var(--text);
+  padding:0;line-height:1.5;-webkit-font-smoothing:antialiased
+}
+.page{display:flex;min-height:100vh}
+.sidebar{width:240px;flex-shrink:0;padding:24px 16px;display:flex;flex-direction:column;gap:2px}
+
+.sidebar-logo{display:flex;align-items:center;gap:10px;padding:0 10px;margin-bottom:4px}
+.sidebar-logo svg{width:28px;height:28px;fill:white}
+.sidebar-logo span{font-size:18px;font-weight:700;letter-spacing:-.02em;color:white}
+
+.sidebar-user{display:flex;align-items:center;gap:8px;padding:8px 10px;margin-bottom:20px;border-radius:var(--radius-sm)}
+.sidebar-user svg{width:16px;height:16px;fill:var(--text-dim);flex-shrink:0}
+.sidebar-user span{font-size:13px;color:var(--text-muted);font-weight:500}
+.sidebar-user .handle{color:var(--text-dim);font-weight:400}
+
+.sidebar-section{font-size:10px;font-weight:500;color:var(--text-dim);text-transform:uppercase;letter-spacing:.08em;padding:16px 10px 6px}
+.sidebar-item{
+  font-size:13px;color:var(--text-muted);padding:8px 10px;border-radius:var(--radius-sm);
+  cursor:pointer;transition:all .12s;display:flex;align-items:center;gap:10px;user-select:none;font-weight:450
+}
+.sidebar-item:hover{color:var(--text);background:var(--card-hover)}
+.sidebar-item.active{color:white;background:var(--card-hover);font-weight:500}
+.sidebar-item .icon{width:16px;height:16px;opacity:0.5;flex-shrink:0}
+.sidebar-item.active .icon{opacity:1}
+.sidebar-item .count{font-size:10px;color:var(--text-dim);margin-left:auto}
+
+.main{flex:1;padding:28px 36px;max-width:1280px}
+.hidden{display:none!important}
+
+/* Topbar */
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:8px}
+.topbar-left{display:flex;align-items:center;gap:10px}
+.topbar h1{font-size:20px;font-weight:600;letter-spacing:-.01em}
+.topbar .handle{font-size:12px;color:var(--text-dim)}
+.status{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text-dim)}
+.status-dot{width:6px;height:6px;border-radius:50%;background:var(--green)}
+.btn{
+  background:var(--card);border:1px solid var(--border);color:var(--text-muted);
+  padding:5px 12px;border-radius:20px;font-size:11px;font-weight:500;
+  cursor:pointer;transition:all .12s;text-decoration:none;display:inline-flex;align-items:center;gap:4px
+}
+.btn:hover{border-color:var(--text-dim);color:var(--text)}
+.btn-white{background:white;color:black;border-color:white;font-weight:600}
+.btn-white:hover{background:var(--accent-dim);border-color:var(--accent-dim)}
+
+/* Goal */
+.goal-row{display:flex;align-items:center;gap:16px;background:var(--card);border:1px solid var(--border);border-radius:999px;padding:10px 20px;margin-bottom:24px;flex-wrap:wrap}
+.goal-label{font-size:11px;font-weight:500;color:var(--text-dim);white-space:nowrap}
+.goal-nums{font-size:13px;font-weight:600;white-space:nowrap}
+.goal-track{flex:1;height:4px;background:var(--border);border-radius:2px;overflow:hidden;min-width:80px}
+.goal-fill{height:100%;border-radius:2px;background:white;transition:width .4s}
+.goal-pct{font-size:11px;font-weight:600;color:white;white-space:nowrap}
+
+/* KPI Grid */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+@media(max-width:900px){.kpis{grid-template-columns:repeat(2,1fr)}}
+.kpi-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px}
+.kpi-label{font-size:11px;font-weight:500;color:var(--text-dim);margin-bottom:6px}
+.kpi-value{font-size:26px;font-weight:700;letter-spacing:-.02em;line-height:1.2}
+.kpi-change{font-size:11px;margin-top:4px}
+.kpi-change.up{color:var(--green)}
+.kpi-change.down{color:var(--red)}
+.kpi-change.neutral{color:var(--text-dim)}
+
+/* Panels */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+@media(max-width:900px){.grid-2{grid-template-columns:1fr}}
+.panel{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:20px}
+.panel-hd{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--border)}
+.panel-title{font-size:11px;font-weight:600;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em}
+.panel-badge{font-size:10px;color:var(--text-muted);background:var(--accent-bg);padding:2px 8px;border-radius:20px;font-weight:500}
+.panel-bd{padding:14px 18px}
+
+/* Chart */
+.chart-box{width:100%;height:220px;position:relative}
+.chart-box canvas{width:100%!important;height:100%!important}
+
+/* Table */
+.table-wrap{overflow-x:auto}
+.post-table{width:100%;border-collapse:collapse}
+.post-table th{text-align:left;font-size:10px;font-weight:500;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em;padding:6px 8px 8px 0;border-bottom:1px solid var(--border)}
+.post-table td{padding:8px 8px 8px 0;border-bottom:1px solid var(--border);font-size:12px;vertical-align:middle}
+.post-table tr:last-child td{border-bottom:none}
+.post-text{color:var(--text);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.post-date{font-size:10px;color:var(--text-dim);white-space:nowrap}
+.post-eng{display:flex;gap:8px;font-size:11px;color:var(--text-muted);align-items:center}
+.view-link{color:var(--text-muted);text-decoration:none;font-size:11px;font-weight:500;white-space:nowrap;transition:color .12s}
+.view-link:hover{color:white}
+
+/* Top Post */
+.top-box{background:var(--accent-bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px}
+.top-label{font-size:10px;text-transform:uppercase;color:var(--text-dim);letter-spacing:.06em;margin-bottom:6px}
+.top-text{font-size:13px;margin-bottom:8px;color:var(--text)}
+.top-stats{display:flex;gap:12px;font-size:11px;color:var(--text-muted);flex-wrap:wrap}
+
+/* Activity */
+.activity{list-style:none}
+.activity li{padding:8px 0;border-bottom:1px solid var(--border);font-size:12px}
+.activity li:last-child{border-bottom:none}
+.act-time{font-size:10px;color:var(--text-dim);margin-bottom:2px}
+.act-text{color:var(--text-muted)}
+
+/* Calendar */
+.cal{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+@media(max-width:600px){.cal{grid-template-columns:repeat(2,1fr)}}
+.cal-wk{background:var(--accent-bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px}
+.cal-label{font-weight:600;color:var(--text);font-size:10px;text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px}
+.cal-target{font-size:12px;color:var(--text-muted)}
+.cal-status{font-size:11px;color:var(--text-dim);margin-top:2px}
+.cal-bar{margin-top:8px;height:3px;background:var(--border);border-radius:2px;overflow:hidden}
+.cal-bar-fill{height:100%;background:white;border-radius:2px}
+
+/* Analytics */
+.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
+@media(max-width:600px){.stat-row{grid-template-columns:1fr}}
+.stat-box{text-align:center;padding:16px}
+.stat-val{font-size:28px;font-weight:700}
+.stat-label{font-size:11px;color:var(--text-dim);margin-top:4px}
+.heat-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.heat-cell{aspect-ratio:1;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:8px;color:var(--text-dim)}
+.heat-0{background:var(--card)}
+.heat-1{background:rgba(255,255,255,0.08);color:var(--text-muted)}
+.heat-2{background:rgba(255,255,255,0.15);color:var(--text-muted)}
+.heat-3{background:rgba(255,255,255,0.25);color:var(--text)}
+.heat-4{background:rgba(255,255,255,0.4);color:white}
+
+/* Content view */
+.content-list{list-style:none}
+.content-list li{padding:10px 0;border-bottom:1px solid var(--border)}
+.content-list li:last-child{border-bottom:none}
+.content-item{display:flex;align-items:center;gap:12px}
+.content-time{font-size:10px;color:var(--text-dim);min-width:50px}
+.content-title{font-size:12px;color:var(--text);flex:1}
+.content-type{font-size:10px;padding:2px 6px;border-radius:4px;text-transform:uppercase;font-weight:500}
+.type-thread{background:var(--accent-bg);color:var(--text-muted)}
+.type-single{background:rgba(34,197,94,0.08);color:var(--green)}
+.type-evening{background:rgba(234,179,8,0.08);color:var(--yellow)}
+
+/* Schedule */
+.sched-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media(max-width:700px){.sched-grid{grid-template-columns:1fr}}
+.sched-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px}
+.sched-time{font-size:22px;font-weight:700;color:white;margin-bottom:2px}
+.sched-label{font-size:11px;color:var(--text-dim);margin-bottom:10px}
+.sched-desc{font-size:12px;color:var(--text-muted);line-height:1.6}
+
+/* Engagement */
+.eng-stat{display:flex;gap:24px;flex-wrap:wrap;margin-bottom:16px}
+.eng-stat-item{text-align:center;min-width:80px}
+.eng-stat-val{font-size:22px;font-weight:700}
+.eng-stat-label{font-size:10px;color:var(--text-dim);margin-top:2px}
+.eng-timeline{list-style:none}
+.eng-timeline li{padding:8px 12px;border-left:1px solid var(--border);margin-left:8px;font-size:12px;color:var(--text-muted);position:relative}
+.eng-timeline li::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--text-dim);position:absolute;left:-3px;top:13px}
+.eng-timeline li .t{font-size:10px;color:var(--text-dim)}
+.empty{color:var(--text-dim);font-size:12px;text-align:center;padding:24px}
+</style>
+</head>
+<body>
+<div class="page">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+      <span>XFactor</span>
+    </div>
+    <div class="sidebar-user">
+      <svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+      <span>@<span class="handle">generalizingai</span></span>
+    </div>
+    <div class="sidebar-section">Overview</div>
+    <div class="sidebar-item active" data-view="dashboard">Dashboard</div>
+    <div class="sidebar-item" data-view="analytics">Analytics</div>
+    <div class="sidebar-item" data-view="content">Content</div>
+    <div class="sidebar-section">Management</div>
+    <div class="sidebar-item" data-view="schedule">Schedule</div>
+    <div class="sidebar-item" data-view="engagement">Engagement</div>
+    <div class="sidebar-item" style="margin-top:auto;color:var(--text-dim)" data-view="dashboard">Settings</div>
+  </div>
+
+  <!-- Main Content Area -->
+  <div class="main" id="mainView"></div>
+</div>
+
+<script>
+let snapData=null, postsData=null, histData=null, engData=null;
+const BASE='https://x.com/generalizingai/status/';
+
+async function loadAll(){
+  try{
+    const [sr,pr,hr,er]=await Promise.all([
+      fetch('snapshot.json?'+Date.now()),fetch('posts.json?'+Date.now()),
+      fetch('history.json?'+Date.now()),fetch('engagement.json?'+Date.now())
+    ]);
+    snapData=await sr.json();postsData=await pr.json();
+    histData=await hr.json();engData=await er.json();
+    switchView('dashboard');
+  }catch(e){console.error(e)}
+}
+
+function switchView(view){
+  document.querySelectorAll('.sidebar-item').forEach(el=>el.classList.toggle('active',el.dataset.view===view));
+  const main=document.getElementById('mainView');
+  if(view==='dashboard')main.innerHTML=renderDashboard();
+  else if(view==='analytics')main.innerHTML=renderAnalytics();
+  else if(view==='content')main.innerHTML=renderContent();
+  else if(view==='schedule')main.innerHTML=renderSchedule();
+  else if(view==='engagement')main.innerHTML=renderEngagement();
+  if(view==='dashboard')setTimeout(drawChart,50);
+}
+
+function topBar(title,sub){
+  const u=snapData?new Date(snapData.updated_at+'Z'):new Date();
+  return `<div class="topbar"><div class="topbar-left"><div><h1>${title}</h1><div class="handle">${sub}</div></div></div>
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+    <div class="status"><span class="status-dot"></span>Updated ${ta(u)}</div>
+    <a class="btn" href="https://x.com/generalizingai" target="_blank">View Profile</a>
+    <button class="btn btn-white" onclick="loadAll()">Refresh</button></div></div>`;
+}
+
+function goalBar(){
+  const f=snapData?.profile?.followers||0,pct=Math.min(100,(f/1000)*100);
+  return `<div class="goal-row"><span class="goal-label">30-Day Goal</span>
+    <span class="goal-nums">${f} / 1,000</span>
+    <div class="goal-track"><div class="goal-fill" style="width:${pct}%"></div></div>
+    <span class="goal-pct">${pct.toFixed(1)}%</span></div>`;
+}
+
+function renderDashboard(){
+  const p=snapData?.profile||{},t=snapData?.totals||{},f=p.followers||0,sk=snapData?.posting_streak||0;
+  const es=(t.total_likes||0)+(t.total_retweets||0)*3+(t.total_replies||0)*2;
+  const ch=histData&&histData.length>=2?f-histData[histData.length-2].followers:0;
+  const posts=postsData||[];
+  let html=topBar('Dashboard','@generalizingai &middot; Building AI @logicbaseio');
+  html+=goalBar();
+  html+=`<div class="kpis">
+    <div class="kpi-card"><div class="kpi-label">Followers</div>
+      <div class="kpi-value">${f.toLocaleString()}</div>
+      <div class="kpi-change ${ch>0?'up':ch<0?'down':'neutral'}">${ch>0?'+'+ch:ch===0?'No change':ch}</div></div>
+    <div class="kpi-card"><div class="kpi-label">Engagement</div>
+      <div class="kpi-value">${es.toLocaleString()}</div>
+      <div class="kpi-change neutral">${t.total_likes||0} likes</div></div>
+    <div class="kpi-card"><div class="kpi-label">Posts Tracked</div>
+      <div class="kpi-value">${t.total_posts_tracked||0}</div>
+      <div class="kpi-change neutral">Original posts</div></div>
+    <div class="kpi-card"><div class="kpi-label">Streak</div>
+      <div class="kpi-value">${sk>0?sk+'d':'--'}</div>
+      <div class="kpi-change neutral">${sk>0?'Consecutive':'Start posting'}</div></div></div>`;
+  html+=`<div class="grid-2">
+    <div class="panel"><div class="panel-hd"><span class="panel-title">Follower Growth</span>
+      <span class="panel-badge">${histData?.length||0} snapshots</span></div>
+      <div class="panel-bd"><div class="chart-box"><canvas id="chart"></canvas></div></div></div>
+    <div class="panel"><div class="panel-hd"><span class="panel-title">Top Post</span><span class="panel-badge">Best</span></div>
+      <div class="panel-bd">${topPostHtml()}</div></div></div>`;
+  html+=`<div class="grid-2">
+    <div class="panel"><div class="panel-hd"><span class="panel-title">Recent Posts</span>
+      <span class="panel-badge">${posts.length} posts</span></div>
+      <div class="panel-bd" style="padding-bottom:8px"><div class="table-wrap">${postTable()}</div></div></div>
+    <div class="panel"><div class="panel-hd"><span class="panel-title">Activity</span><span class="panel-badge">Live</span></div>
+      <div class="panel-bd" style="padding:0 16px 8px">${activityHtml()}</div></div></div>`;
+  html+=`<div class="panel"><div class="panel-hd"><span class="panel-title">Growth Plan</span><span class="panel-badge">30 days</span></div>
+    <div class="panel-bd">${calHtml(f)}</div></div>`;
+  return html;
+}
+
+function topPostHtml(){
+  const tp=snapData?.top_post;
+  if(!tp)return'<div class="empty">No data yet</div>';
+  const tx=tp.text.length>120?tp.text.substring(0,120)+'...':tp.text;
+  return `<div class="top-box"><div class="top-label">Best Performing Post</div>
+    <div class="top-text">${esc(tx)}</div>
+    <div class="top-stats">
+      <span>Likes ${tp.likes}</span><span>RTs ${tp.retweets}</span><span>Replies ${tp.replies}</span>
+      <span><a href="${BASE+tp.id}" target="_blank" class="view-link">View Post &rarr;</a></span></div></div>`;
+}
+
+function postTable(){
+  const posts=postsData||[];
+  if(!posts.length)return'<div class="empty">No posts tracked</div>';
+  let h='<table class="post-table"><thead><tr><th>Post</th><th>Date</th><th>Eng</th><th></th></tr></thead><tbody>';
+  posts.slice(0,10).forEach(p=>{
+    const d=p.created_at?new Date(p.created_at+'Z'):null;
+    h+=`<tr><td class="post-text">${esc(p.text.substring(0,80))}</td>
+      <td class="post-date">${d?fd(d):'--'}</td>
+      <td class="post-eng"><span>${p.likes} likes</span><span>${p.engagement_score} score</span></td>
+      <td><a href="${BASE+p.id}" target="_blank" class="view-link">View &rarr;</a></td></tr>`;
+  });
+  return h+'</tbody></table>';
+}
+
+function activityHtml(){
+  const all=[...(engData?.engagement_log||[]),...(engData?.post_log||[])].slice(-15).reverse();
+  if(!all.length)return'<div class="empty">No recent activity</div>';
+  return '<ul class="activity">'+all.map(e=>{
+    const m=e.match(/^\[([^\]]+)\]/),tm=m?ta(new Date(m[1])):'',tx=m?e.substring(m[0].length).trim():e;
+    return `<li><div class="act-time">${tm}</div><div class="act-text">${esc(tx.substring(0,100))}</div></li>`;
+  }).join('')+'</ul>';
+}
+
+function calHtml(f){
+  const weeks=[
+    {l:'Week 1',t:100,a:Math.max(f,33)},{l:'Week 2',t:300,a:null},
+    {l:'Week 3',t:600,a:null},{l:'Week 4',t:1000,a:null}];
+  return '<div class="cal">'+weeks.map(w=>{
+    const pp=w.a!==null?Math.min(100,(w.a/w.t)*100):0,s=w.a!==null?(w.a>=w.t?'Achieved':w.a+' / '+w.t):'Upcoming';
+    return `<div class="cal-wk"><div class="cal-label">${w.l}</div>
+      <div class="cal-target">Target: ${w.t.toLocaleString()}</div>
+      <div class="cal-status">${s}</div>
+      <div class="cal-bar"><div class="cal-bar-fill" style="width:${pp}%"></div></div></div>`;
+  }).join('')+'</div>';
+}
+
+function renderAnalytics(){
+  const posts=postsData||[];
+  const totalLikes=posts.reduce((s,x)=>s+x.likes,0);
+  const totalRTs=posts.reduce((s,x)=>s+x.retweets,0);
+  const totalReplies=posts.reduce((s,x)=>s+x.replies,0);
+  const avgEng=posts.length?Math.round((totalLikes+totalRTs*3+totalReplies*2)/posts.length):0;
+  let html=topBar('Analytics','Post performance &amp; engagement metrics');
+  html+=`<div class="stat-row">
+    <div class="panel"><div class="panel-bd stat-box"><div class="stat-val">${totalLikes}</div><div class="stat-label">Total Likes</div></div></div>
+    <div class="panel"><div class="panel-bd stat-box"><div class="stat-val">${totalRTs}</div><div class="stat-label">Total Retweets</div></div></div>
+    <div class="panel"><div class="panel-bd stat-box"><div class="stat-val">${avgEng}</div><div class="stat-label">Avg Engagement</div></div></div></div>`;
+  const dates=histData?.map(h=>h.timestamp?.substring(0,10))||[];
+  const dayMap={};dates.forEach(d=>{if(d)dayMap[d]=(dayMap[d]||0)+1});
+  const maxCount=Math.max(...Object.values(dayMap),1);
+  html+=`<div class="panel"><div class="panel-hd"><span class="panel-title">Posting Activity</span><span class="panel-badge">Last 28 days</span></div><div class="panel-bd"><div class="heat-grid">`;
+  for(let i=27;i>=0;i--){
+    const d=new Date(Date.now()-i*86400000);const key=d.toISOString().substring(0,10);
+    const count=dayMap[key]||0;const level=count>0?Math.min(4,Math.ceil(count/maxCount*4)):0;
+    html+=`<div class="heat-cell heat-${level}" title="${key}: ${count}">${d.getDate()}</div>`;
+  }
+  html+='</div></div></div>';
+  html+=`<div class="grid-2">
+    <div class="panel"><div class="panel-hd"><span class="panel-title">Engagement Breakdown</span><span class="panel-badge">All time</span></div>
+      <div class="panel-bd">${postTable()}</div></div>
+    <div class="panel"><div class="panel-hd"><span class="panel-title">History</span><span class="panel-badge">${histData?.length||0} points</span></div>
+      <div class="panel-bd"><div class="chart-box"><canvas id="chart2"></canvas></div></div></div></div>`;
+  return html;
+}
+
+function renderContent(){
+  const posts=postsData||[];const logs=engData?.post_log||[];
+  let html=topBar('Content','Posts, threads &amp; content calendar');
+  html+=goalBar();
+  html+=`<div class="stat-row">
+    <div class="panel"><div class="panel-bd stat-box"><div class="stat-val">${posts.length}</div><div class="stat-label">Original Posts Tracked</div></div></div>
+    <div class="panel"><div class="panel-bd stat-box"><div class="stat-val">${snapData?.profile?.posts||0}</div><div class="stat-label">Total Lifetime Posts</div></div></div>
+    <div class="panel"><div class="panel-bd stat-box"><div class="stat-val">${logs.filter(l=>l.includes('THREAD')).length}</div><div class="stat-label">Threads Posted</div></div></div></div>`;
+  html+=`<div class="panel"><div class="panel-hd"><span class="panel-title">Recent Content</span><span class="panel-badge">${posts.length} items</span></div>
+    <div class="panel-bd"><ul class="content-list">`;
+  posts.slice(0,12).forEach(p=>{
+    const d=p.created_at?new Date(p.created_at+'Z'):null;const isThread=p.text.length>150;
+    html+=`<li><div class="content-item"><span class="content-time">${d?fd(d):'--'}</span>
+      <span class="content-title">${esc(p.text.substring(0,80))}${p.text.length>80?'...':''}</span>
+      <span class="content-type ${isThread?'type-thread':'type-single'}">${isThread?'Thread':'Post'}</span>
+      <a href="${BASE+p.id}" target="_blank" class="view-link">View</a></div></li>`;
+  });
+  html+=`</ul></div></div>`;
+  html+=`<div class="panel"><div class="panel-hd"><span class="panel-title">Growth Calendar</span><span class="panel-badge">30 days</span></div>
+    <div class="panel-bd">${calHtml(snapData?.profile?.followers||0)}</div></div>`;
+  return html;
+}
+
+function renderSchedule(){
+  return topBar('Schedule','Daily posting &amp; engagement schedule')+goalBar()+`
+  <div class="sched-grid">
+    <div class="sched-card"><div class="sched-time">8:00 AM</div><div class="sched-label">PKT (UTC+5)</div>
+      <div class="sched-desc"><b>Morning Thread</b><br>Research X for trending topics, then post a 6-tweet thread based on what is getting attention.</div></div>
+    <div class="sched-card"><div class="sched-time">10:00 AM</div><div class="sched-label">PKT (UTC+5)</div>
+      <div class="sched-desc"><b>Afternoon Single</b><br>Research X, then post a single value-add post or hot take based on current conversations.</div></div>
+    <div class="sched-card"><div class="sched-time">2:00 PM</div><div class="sched-label">PKT (UTC+5)</div>
+      <div class="sched-desc"><b>Engagement Run</b><br>Likes on trending AI accounts, follows relevant builders, replies to mentions.</div></div>
+    <div class="sched-card"><div class="sched-time">6:00 PM</div><div class="sched-label">PKT (UTC+5)</div>
+      <div class="sched-desc"><b>Evening Post</b><br>Research X, then post an evening reflection or hot take on a different angle.</div></div>
+    <div class="sched-card"><div class="sched-time">Every 30m</div><div class="sched-label">Auto</div>
+      <div class="sched-desc"><b>Dashboard Refresh</b><br>Data collector fetches latest metrics. Dashboard auto-refreshes every 5 minutes.</div></div>
+    <div class="sched-card"><div class="sched-time">Always</div><div class="sched-label">Live</div>
+      <div class="sched-desc"><b>Research-First</b><br>Every post starts with X research. We analyze trending topics, then generate content for maximum engagement.</div></div>
+  </div>`;
+}
+
+function renderEngagement(){
+  const fetchedLikes=snapData?.profile?.likes||0;
+  const following=snapData?.profile?.following||0;
+  const logs=engData?.post_log||[];const engLogs=engData?.engagement_log||[];
+  const all=[...logs,...engLogs].filter(l=>l.includes('ENGAGED')).slice(-30).reverse();
+  let html=topBar('Engagement','Likes, follows &amp; community interaction');
+  html+=goalBar();
+  html+=`<div class="eng-stat">
+    <div class="eng-stat-item"><div class="eng-stat-val">${all.length}</div><div class="eng-stat-label">Engagements</div></div>
+    <div class="eng-stat-item"><div class="eng-stat-val">${following}</div><div class="eng-stat-label">Following</div></div>
+    <div class="eng-stat-item"><div class="eng-stat-val">${fetchedLikes}</div><div class="eng-stat-label">Likes Given</div></div>
+    <div class="eng-stat-item"><div class="eng-stat-val">${snapData?.profile?.followers||0}</div><div class="eng-stat-label">Followers</div></div></div>`;
+  html+=`<div class="panel"><div class="panel-hd"><span class="panel-title">Engagement Timeline</span><span class="panel-badge">${all.length} events</span></div>
+    <div class="panel-bd">`;
+  if(!all.length)html+='<div class="empty">No engagement events yet. The engagement bot runs at 2 PM daily.</div>';
+  else{
+    html+='<ul class="eng-timeline">';
+    all.slice(0,25).forEach(e=>{
+      const m=e.match(/^\[([^\]]+)\]/),tm=m?ta(new Date(m[1])):'',tx=m?e.substring(m[0].length).trim():e;
+      html+=`<li><span class="t">${tm}</span><br>${esc(tx.substring(0,120))}</li>`;
+    });
+    html+='</ul>';
+  }
+  html+=`</div></div>`;
+  return html;
+}
+
+function drawChart(){
+  const cv=document.getElementById('chart')||document.getElementById('chart2');
+  if(!cv||!histData||histData.length<2)return;
+  const ctx=cv.getContext('2d');
+  const rect=cv.parentElement.getBoundingClientRect();
+  cv.width=rect.width*devicePixelRatio;cv.height=rect.height*devicePixelRatio;
+  cv.style.width=rect.width+'px';cv.style.height=rect.height+'px';
+  ctx.scale(devicePixelRatio,devicePixelRatio);
+  const W=rect.width,H=rect.height,P={t:16,r:16,b:28,l:44};
+  const vals=histData.map(x=>x.followers);
+  const min=Math.min(...vals),max=Math.max(...vals),range=Math.max(max-min,1);
+  const x=i=>P.l+(i/(vals.length-1))*(W-P.l-P.r),y=v=>P.t+(1-(v-min)/range)*(H-P.t-P.b);
+  ctx.strokeStyle='#1a1a1a';ctx.lineWidth=1;
+  for(let i=0;i<=4;i++){const yy=P.t+(i/4)*(H-P.t-P.b);ctx.beginPath();ctx.moveTo(P.l,yy);ctx.lineTo(W-P.r,yy);ctx.stroke();
+    ctx.fillStyle='#6b7280';ctx.font='10px Inter,sans-serif';ctx.textAlign='right';ctx.fillText(Math.round(min+(i/4)*range)+'',P.l-5,yy+3);}
+  const g=ctx.createLinearGradient(0,P.t,0,H-P.b);
+  g.addColorStop(0,'rgba(255,255,255,0.08)');g.addColorStop(1,'rgba(255,255,255,0)');
+  ctx.beginPath();ctx.moveTo(x(0),H-P.b);vals.forEach((v,i)=>ctx.lineTo(x(i),y(v)));ctx.lineTo(x(vals.length-1),H-P.b);ctx.closePath();
+  ctx.fillStyle=g;ctx.fill();
+  ctx.beginPath();vals.forEach((v,i)=>{i===0?ctx.moveTo(x(i),y(v)):ctx.lineTo(x(i),y(v));});
+  ctx.strokeStyle='white';ctx.lineWidth=2;ctx.stroke();
+  vals.forEach((v,i)=>{ctx.beginPath();ctx.arc(x(i),y(v),2.5,0,Math.PI*2);ctx.fillStyle='white';ctx.fill();});
+}
+
+document.addEventListener('click',function(e){
+  const item=e.target.closest('.sidebar-item');
+  if(item&&item.dataset.view)switchView(item.dataset.view);
+});
+
+function esc(t){const d=document.createElement('div');d.textContent=t;return d.innerHTML}
+function fd(d){return['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()]+' '+d.getDate()}
+function ta(d){const n=(new Date()-d)/1000;if(n<60)return'just now';if(n<3600)return Math.floor(n/60)+'m ago';if(n<86400)return Math.floor(n/3600)+'h ago';return Math.floor(n/86400)+'d ago'}
+
+loadAll();
+setInterval(loadAll,300000);
+</script>
+</body>
+</html>
