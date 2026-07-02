@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""X Engagement for @generalizingai — lots of likes, selective follows, all replies."""
+"""X Engagement for @generalizingai - lots of likes, selective follows, all replies."""
 
 import subprocess, json, time, os, random, sys
 from datetime import datetime

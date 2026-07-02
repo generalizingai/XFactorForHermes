@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Daily X content for @generalizingai — researches X first, then writes viral-optimized content.
+"""Daily X content for @generalizingai - researches X first, then writes viral-optimized content.
 Usage: python3 x-daily-poster.py morning|afternoon|evening"""
 
 import subprocess, json, sys, time, os, random

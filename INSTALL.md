@@ -1,4 +1,4 @@
-# XFactor — One-Line Install
+# XFactor - One-Line Install
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/hamzaashergill/xfactor/main/setup.sh | bash

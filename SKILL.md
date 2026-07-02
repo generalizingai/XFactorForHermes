@@ -46,9 +46,13 @@ required_credential_files:
     description: X API OAuth token file (created by xurl auth oauth2)
 ---
 
-# XFactor — X Growth Engine
+# XFactor - X Growth Engine
 
-XFactor is a complete autonomous X (Twitter) growth engine. It posts research-driven content, engages with your niche, and provides a live analytics dashboard — all automated through Hermes Agent.
+<p align="center">
+  <img src="dashboard/xfactor-logo-white.png" alt="XFactor Logo" width="400">
+</p>
+
+XFactor is a complete autonomous X (Twitter) growth engine. It posts research-driven content, engages with your niche, and provides a live analytics dashboard - all automated through Hermes Agent.
 
 ## How It Works
 

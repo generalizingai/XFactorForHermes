@@ -1,6 +1,10 @@
-# XFactor — Autonomous X Growth Engine for Hermes Agent
+# XFactor - Autonomous X Growth Engine for Hermes Agent
 
-XFactor is a complete, autonomous X (Twitter) growth system built for [Hermes Agent](https://hermes-agent.nousresearch.com). It handles your entire X growth loop — research, content creation, engagement, and analytics — without manual effort.
+<p align="center">
+  <img src="dashboard/xfactor-logo-white.png" alt="XFactor Logo" width="400">
+</p>
+
+XFactor is a complete, autonomous X (Twitter) growth system built for [Hermes Agent](https://hermes-agent.nousresearch.com). It handles your entire X growth loop - research, content creation, engagement, and analytics - without manual effort.
 
 ## 🚀 One-Command Install
 
@@ -120,10 +124,10 @@ PRODUCTIVE_ACCOUNTS = ["influencer1", "builder2", "expert3"]
 ### Change content
 
 In `x-daily-poster.py`, the content generation functions:
-- `generate_morning_thread()` — 6-tweet threads
-- `generate_single_post()` — afternoon singles
-- `generate_evening_post()` — evening posts
-- `VALUABLE_REPLIES` in `x-engagement.py` — reply templates
+- `generate_morning_thread()` - 6-tweet threads
+- `generate_single_post()` - afternoon singles
+- `generate_evening_post()` - evening posts
+- `VALUABLE_REPLIES` in `x-engagement.py` - reply templates
 
 ### Change posting times
 
@@ -181,11 +185,11 @@ Adjust cron job schedules in Hermes to match your audience's timezone.
 
 ## License
 
-MIT — use freely, modify, share.
+MIT - use freely, modify, share.
 
 ## Built With
 
-- [xurl](https://github.com/xdevplatform/xurl) — Official X API CLI
-- [Hermes Agent](https://hermes-agent.nousresearch.com) — AI Agent framework
-- Python 3 — Scripting
-- Vanilla HTML/CSS/JS — Dashboard
+- [xurl](https://github.com/xdevplatform/xurl) - Official X API CLI
+- [Hermes Agent](https://hermes-agent.nousresearch.com) - AI Agent framework
+- Python 3 - Scripting
+- Vanilla HTML/CSS/JS - Dashboard
