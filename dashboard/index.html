@@ -184,6 +184,25 @@ body{
 .eng-timeline li::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--text-dim);position:absolute;left:-3px;top:13px}
 .eng-timeline li .t{font-size:10px;color:var(--text-dim)}
 .empty{color:var(--text-dim);font-size:12px;text-align:center;padding:24px}
+
+/* Settings */
+.settings-section{margin-bottom:20px}
+.settings-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px}
+.settings-card h3{font-size:14px;font-weight:600;margin-bottom:12px}
+.settings-card p{font-size:12px;color:var(--text-muted);margin-bottom:8px;line-height:1.6}
+.settings-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:8px}
+.settings-row:last-child{border-bottom:none}
+.settings-label{font-size:13px;color:var(--text)}
+.settings-value{font-size:12px;color:var(--text-muted)}
+.settings-badge{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:500;text-transform:uppercase}
+.badge-connected{background:rgba(34,197,94,0.1);color:var(--green)}
+.badge-disconnected{background:rgba(239,68,68,0.1);color:var(--red)}
+.code-block{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px;font-family:'SF Mono','Menlo',monospace;font-size:11px;color:var(--text-muted);overflow-x:auto;white-space:pre;margin:8px 0}
+.api-loading{text-align:center;padding:40px;color:var(--text-dim);font-size:13px}
+.api-error{text-align:center;padding:20px;color:var(--red);font-size:12px}
+.btn-danger{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);color:var(--red)}
+.btn-danger:hover{background:rgba(239,68,68,0.2);border-color:var(--red)}
+.btn-success{background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.2);color:var(--green)}
 </style>
 </head>
 <body>
@@ -204,7 +223,7 @@ body{
     <div class="sidebar-section">Management</div>
     <div class="sidebar-item" data-view="schedule">Schedule</div>
     <div class="sidebar-item" data-view="engagement">Engagement</div>
-    <div class="sidebar-item" style="margin-top:auto;color:var(--text-dim)" data-view="dashboard">Settings</div>
+    <div class="sidebar-item" style="margin-top:auto;color:var(--text-dim)" data-view="settings">Settings</div>
   </div>
 
   <!-- Main Content Area -->
@@ -235,6 +254,7 @@ function switchView(view){
   else if(view==='content')main.innerHTML=renderContent();
   else if(view==='schedule')main.innerHTML=renderSchedule();
   else if(view==='engagement')main.innerHTML=renderEngagement();
+  else if(view==='settings')main.innerHTML=renderSettings();
   if(view==='dashboard')setTimeout(drawChart,50);
 }
 
