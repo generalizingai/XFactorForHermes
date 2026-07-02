@@ -31,8 +31,13 @@ body{
   background:var(--bg);color:var(--text);
   padding:0;line-height:1.5;-webkit-font-smoothing:antialiased
 }
-.page{display:flex;min-height:100vh}
-.sidebar{width:240px;flex-shrink:0;padding:24px 16px;display:flex;flex-direction:column;gap:2px}
+.page{}
+.sidebar{
+  position:fixed;top:0;left:0;width:240px;height:100vh;
+  padding:24px 16px;display:flex;flex-direction:column;gap:2px;
+  background:var(--bg);z-index:100;overflow-y:auto
+}
+.main{margin-left:240px;padding:28px 36px;max-width:1280px}
 
 .sidebar-logo{display:flex;align-items:center;gap:10px;padding:0 10px;margin-bottom:4px}
 .sidebar-logo img{width:100px;height:auto;display:block}
@@ -72,6 +77,8 @@ body{
 .btn:hover{border-color:var(--text-dim);color:var(--text)}
 .btn-white{background:white;color:black;border-color:white;font-weight:600}
 .btn-white:hover{background:var(--accent-dim);border-color:var(--accent-dim)}
+.btn-accent{background:var(--accent);color:white;border-color:var(--accent);font-weight:500}
+.btn-accent:hover{background:var(--accent-dim)}
 
 /* Goal */
 .goal-row{display:flex;align-items:center;gap:16px;background:var(--card);border:1px solid var(--border);border-radius:999px;padding:10px 20px;margin-bottom:24px;flex-wrap:wrap}
@@ -234,6 +241,10 @@ body{
 let snapData=null, postsData=null, histData=null, engData=null;
 const BASE='https://x.com/generalizingai/status/';
 
+// Configurable goal (stored in localStorage, default 1000)
+function getGoal(){return parseInt(localStorage.getItem('xfactor_goal')||'1000')}
+function setGoal(n){localStorage.setItem('xfactor_goal',n.toString())}
+
 async function loadAll(){
   try{
     const [sr,pr,hr,er]=await Promise.all([
@@ -268,9 +279,9 @@ function topBar(title,sub){
 }
 
 function goalBar(){
-  const f=snapData?.profile?.followers||0,pct=Math.min(100,(f/1000)*100);
+  const f=snapData?.profile?.followers||0,goal=getGoal(),pct=Math.min(100,(f/goal)*100);
   return `<div class="goal-row"><span class="goal-label">30-Day Goal</span>
-    <span class="goal-nums">${f} / 1,000</span>
+    <span class="goal-nums">${f} / ${goal.toLocaleString()}</span>
     <div class="goal-track"><div class="goal-fill" style="width:${pct}%"></div></div>
     <span class="goal-pct">${pct.toFixed(1)}%</span></div>`;
 }
@@ -347,9 +358,10 @@ function activityHtml(){
 }
 
 function calHtml(f){
+  const goal=getGoal();
   const weeks=[
-    {l:'Week 1',t:100,a:Math.max(f,33)},{l:'Week 2',t:300,a:null},
-    {l:'Week 3',t:600,a:null},{l:'Week 4',t:1000,a:null}];
+    {l:'Week 1',t:Math.round(goal*0.1),a:Math.max(f,33)},{l:'Week 2',t:Math.round(goal*0.3),a:null},
+    {l:'Week 3',t:Math.round(goal*0.6),a:null},{l:'Week 4',t:goal,a:null}];
   return '<div class="cal">'+weeks.map(w=>{
     const pp=w.a!==null?Math.min(100,(w.a/w.t)*100):0,s=w.a!==null?(w.a>=w.t?'Achieved':w.a+' / '+w.t):'Upcoming';
     return `<div class="cal-wk"><div class="cal-label">${w.l}</div>
@@ -478,6 +490,116 @@ function drawChart(){
   ctx.beginPath();vals.forEach((v,i)=>{i===0?ctx.moveTo(x(i),y(v)):ctx.lineTo(x(i),y(v));});
   ctx.strokeStyle='white';ctx.lineWidth=2;ctx.stroke();
   vals.forEach((v,i)=>{ctx.beginPath();ctx.arc(x(i),y(v),2.5,0,Math.PI*2);ctx.fillStyle='white';ctx.fill();});
+}
+
+function renderSettings(){
+  const goal=getGoal();
+  let html=topBar('Settings','Account connection, goal, and configuration');
+  
+  html+=`<div class="settings-section">
+    <div class="settings-card">
+      <h3>30-Day Goal</h3>
+      <p>Set your follower target for the next 30 days. The dashboard will track progress against this goal.</p>
+      <div style="display:flex;gap:8px;align-items:center;margin-top:8px">
+        <input type="number" id="goalInput" value="${goal}" min="100" max="100000" 
+          style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:6px 10px;color:var(--text);font-size:13px;width:120px;font-family:inherit">
+        <button class="btn btn-accent" onclick="saveGoal()">Save Goal</button>
+        <span id="goalSaved" style="font-size:11px;color:var(--green);display:none">Saved!</span>
+      </div>
+      <p style="font-size:11px;color:var(--text-dim);margin-top:8px">Current: ${snapData?.profile?.followers||0} / ${goal.toLocaleString()} (${((snapData?.profile?.followers||0)/goal*100).toFixed(1)}%)</p>
+    </div>
+  </div>
+  
+  <div class="settings-section">
+    <div class="settings-card">
+      <h3>X Account Connection</h3>
+      <div id="settings-status"><div class="api-loading">Checking connection...</div></div>
+    </div>
+  </div>
+  
+  <div class="settings-section">
+    <div class="settings-card">
+      <h3>Dashboard Server</h3>
+      <div class="settings-row">
+        <span class="settings-label">Address</span>
+        <span class="settings-value">http://localhost:3000</span>
+      </div>
+      <div class="settings-row">
+        <span class="settings-label">Data Updated</span>
+        <span class="settings-value">${snapData?.updated_at?ta(new Date(snapData.updated_at+'Z')):'never'}</span>
+      </div>
+      <div class="settings-row" style="border-bottom:none">
+        <span class="settings-label">Version</span>
+        <span class="settings-value">2.0.0</span>
+      </div>
+    </div>
+  </div>
+  
+  <div class="settings-section">
+    <div class="settings-card">
+      <h3>About XFactor</h3>
+      <p>XFactor is an open-source X growth engine for Hermes Agent. It automates posting, engagement, and analytics.</p>
+      <p style="margin-top:8px">Built by <a href="https://github.com/generalizingai" target="_blank" style="color:var(--accent)">@generalizingai</a> &middot; MIT License</p>
+      <p><a href="https://github.com/generalizingai/XFactorForHermes" target="_blank" style="color:var(--accent)">github.com/generalizingai/XFactorForHermes</a></p>
+    </div>
+  </div>`;
+  
+  // Fetch connection status asynchronously
+  setTimeout(()=>{
+    fetch('/api/status?'+Date.now())
+      .then(r=>r.json())
+      .then(s=>{
+        const connected=s.status==='connected';
+        document.getElementById('settings-status').innerHTML=
+          `<div class="settings-row"><span class="settings-label">Status</span>
+            <span><span class="settings-badge ${connected?'badge-connected':'badge-disconnected'}">${connected?'Connected':'Disconnected'}</span></span></div>
+          ${connected?`
+            <div class="settings-row"><span class="settings-label">Account</span><span class="settings-value">@${s.handle}</span></div>
+            <div class="settings-row"><span class="settings-label">Followers</span><span class="settings-value">${s.followers.toLocaleString()}</span></div>
+            <div class="settings-row" style="border-bottom:none"><span class="settings-label">Auth</span><span class="settings-value">${s.has_oauth2?'OAuth 2.0':'OAuth 1.0a'}</span></div>
+            <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">
+              <p style="font-size:12px;color:var(--text-muted)">Disconnect removes X API credentials from this machine.</p>
+              <button class="btn btn-danger" onclick="disconnectX()" style="margin-top:8px">Disconnect X Account</button>
+            </div>`:`
+            <div class="settings-row" style="border-bottom:none"><span class="settings-label">Not connected</span></div>
+            <div style="margin-top:8px">
+              <div class="code-block">1. Get X API credentials from developer.x.com
+2. Run:
+   xurl auth apps add xfactor --client-id YOUR_ID --client-secret YOUR_SECRET
+   xurl auth oauth2 --app xfactor YOUR_HANDLE
+   xurl auth default xfactor</div>
+            </div>`}`;
+      })
+      .catch(()=>{
+        document.getElementById('settings-status').innerHTML=
+          `<div class="api-error">Cannot reach API server. Run: python3 ~/.hermes/scripts/x-dashboard-server.py</div>`;
+      });
+  }, 50);
+  
+  return html;
+}
+
+function saveGoal(){
+  const input=document.getElementById('goalInput');
+  const val=parseInt(input.value);
+  if(val&&val>=10){setGoal(val);document.getElementById('goalSaved').style.display='inline'}
+  switchView('dashboard');
+}
+
+function disconnectX(){
+  if(!confirm('Disconnect your X account from XFactor?'))return;
+  document.getElementById('settings-status').innerHTML='<div class="api-loading">Disconnecting...</div>';
+  fetch('/api/disconnect',{method:'POST'})
+    .then(r=>r.json())
+    .then(result=>{
+      document.getElementById('settings-status').innerHTML=result.success
+        ? `<div style="padding:16px;color:var(--green);font-size:13px">${result.message}</div>`
+        : `<div class="api-error">${result.error}</div>`;
+    })
+    .catch(()=>{
+      document.getElementById('settings-status').innerHTML=
+        `<div class="api-error">API server not reachable. Run: python3 ~/.hermes/scripts/x-dashboard-server.py</div>`;
+    });
 }
 
 document.addEventListener('click',function(e){
