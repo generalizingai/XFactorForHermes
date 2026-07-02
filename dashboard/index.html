@@ -503,7 +503,7 @@ function renderSettings(){
       <div style="display:flex;gap:8px;align-items:center;margin-top:8px">
         <input type="number" id="goalInput" value="${goal}" min="100" max="100000" 
           style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:6px 10px;color:var(--text);font-size:13px;width:120px;font-family:inherit">
-        <button class="btn btn-accent" onclick="saveGoal()">Save Goal</button>
+        <button class="btn" style="background:#3b82f6;color:white;border-color:#3b82f6;font-weight:500" onclick="saveGoal()">Save Goal</button>
         <span id="goalSaved" style="font-size:11px;color:var(--green);display:none">Saved!</span>
       </div>
       <p style="font-size:11px;color:var(--text-dim);margin-top:8px">Current: ${snapData?.profile?.followers||0} / ${goal.toLocaleString()} (${((snapData?.profile?.followers||0)/goal*100).toFixed(1)}%)</p>
